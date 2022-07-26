@@ -10,4 +10,7 @@ subjects:
 - kind: ServiceAccount
   name: {{ include "node-monitor.serviceAccountName" . }}
   namespace:  {{ .Values.namespace.name }}
+- kind: ServiceAccount
+  name: {{ .Values.collectserviceaccount.name }}
+  namespace:  {{ .Values.namespace.name }}
 

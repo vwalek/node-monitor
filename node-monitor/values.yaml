@@ -26,4 +26,18 @@ monitordaemonset:
 metricsdaemonset:
   name: metricsdaemonset
   nodeSelector:
-    collect-node-metrics: ""  
+    collect-node-metrics: ""
+
+collectldaemonset:
+  name: collectldebug
+  nodeSelector:
+    run-collectl-debug: ""
+
+collectserviceaccount:
+  name: collectldebug
+
+collectlimage:
+  name: "quay.io/vwalek/collectl:latest"
+
+
+

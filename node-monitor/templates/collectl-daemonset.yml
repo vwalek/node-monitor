@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ .Values.collectldaemonset.name }}
+  namespace: {{ .Values.namespace.name }}
+  labels:
+    {{- include "node-monitor.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "node-monitor.selectorLabels" . | nindent 6 }}
+      {{- with .Values.collectldaemonset.nodeSelector }}
+        {{- toYaml . | nindent 6 }}
+      {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "node-monitor.selectorLabels" . | nindent 8 }}
+        {{- with .Values.collectldaemonset.nodeSelector }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.collectldaemonset.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: collectl
+        image: {{ .Values.collectlimage.name }}
+        imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 400Mi
+          requests:
+            cpu: 100m
+            memory: 400Mi
+        volumeMounts:
+        - mountPath: /dev/mem
+          name: mem
+        - mountPath: /sys
+          name: sys
+        - mountPath: /var/log
+          name: logs
+        securityContext:
+          runAsUser: 0
+          privileged: true
+      volumes:
+      - name: mem
+        hostPath:
+          path: /dev/mem
+          type: CharDevice
+      - name: sys
+        hostPath:
+          path: /sys
+          type: Directory
+      - name: logs
+        hostPath:
+          path: /var/log
+          type: Directory
+      hostPID: true
+      hostNetwork: true
+      hostIPC: true
+      serviceAccount: {{ .Values.collectserviceaccount.name }}
+      serviceAccountName: {{ .Values.collectserviceaccount.name }}
